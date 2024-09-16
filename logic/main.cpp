@@ -1,29 +1,42 @@
-#include "Process.h"
+#include "ProcessPool.h"
+#include "Scheduler.h"
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-  Process obj; // Create a new instance of Process
+  ProcessPool pool;
+  generateProcesses(pool, 5); // Create 5 processes in the pool
 
-  // Check initial status
-  if (obj.getStatus() == Process::Status::NEW) {
-    std::cout << "Initial status: NEW\n";
+  Scheduler scheduler;
+
+  // TODO: add enqueueing algorithm - it's based on which we choose
+  //  Feed processes from the pool to the scheduler
+  for (size_t i = 0; i < pool.size(); ++i) {
+    scheduler.processQueue.push(&pool.getProcess(i));
   }
 
-  // Change status
-  obj.setStatus(Process::Status::READY);
+  // TODO: add scheduler behaviour - based on the alg we choose
+  // Example of using the scheduler
+  while (!scheduler.processQueue.empty()) {
+    // Execute it every second
+    Process *currentProcess = scheduler.processQueue.front();
+    scheduler.processQueue.pop();
 
-  // Check new status
-  switch (obj.getStatus()) {
-  case Process::Status::RUNNING:
-    std::cout << "New status: RUNNING\n";
-    break;
-  case Process::Status::WAITING:
-    std::cout << "New status: WAITING\n";
-    break;
-  case Process::Status::TERMINATED:
-    std::cout << "New status: TERMINATED\n";
-    break;
+    scheduler.setCurrentProcess(currentProcess);
+
+    // Simulate some processing
+    currentProcess->setStatus(Process::Status::RUNNING);
+
+    // Update process attributes
+    currentProcess->setCompletionTime(10);
+    currentProcess->setWaitingTime(2);
+    currentProcess->setTurnaroundTime(4);
+
+    currentProcess->setStatus(Process::Status::TERMINATED);
+
+    scheduler.setPreviousProcess(currentProcess);
+    pool.displayProcesses();
   }
 
-  return 0;
+  // Display final state of processes
+  pool.displayProcesses();
 }
