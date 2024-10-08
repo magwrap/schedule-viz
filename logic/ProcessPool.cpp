@@ -32,7 +32,8 @@ void ProcessPool::displayProcesses(std::ostream &out) const {
     out << "Process " << i << " - Status: ";
     switch (processes[i].getStatus()) {
     case Process::Status::NEW:
-      out << "NEW";
+      out << "NEW \n";
+      out << "Burst time: " << processes[i].getBurstTime();
       break;
     case Process::Status::READY:
       out << "READY";
